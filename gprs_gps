@@ -1,0 +1,65 @@
+#include <SoftwareSerial.h>
+#include <Adafruit_GPS.h>
+
+SoftwareSerial mySerial(10, 11);  //RX, TX
+SoftwareSerial gprs(8,9);
+Adafruit_GPS gps(&mySerial);  //Creates GPS OBJECT
+
+String temp;
+
+void setup() {
+ Serial.begin(9600);
+ delay(100);
+ gprs.begin(9600);
+ delay(100);
+ gps.begin(9600);
+ delay(100);
+ 
+
+}
+
+void loop() {
+ 
+
+}
+
+void gprsStart(){
+  while (gprs.available()>0) {
+    connect_gprs("AT \n",100);
+    Serial.println("GPRS : ");
+    Serial.print(gprs.read());
+    delay(250);
+        
+  }
+}
+void connect_gprs(String cmd, int t)
+{
+  int temp=0,i=0;
+  while(1)
+  {
+    
+    Serial.println(cmd);
+    gprs.println(cmd); 
+    while(gprs.available()>0)
+    {
+      if(gprs.find("OK"))
+      {
+
+      i=8;
+      }
+    }
+    delay(t);
+    if(i>5)
+    break;
+    i++;
+  }
+  if(i==8)
+  {
+    Serial.println("OK");
+  }
+  else
+  {
+  Serial.println("Error");
+  }
+  delay(1000);
+}
