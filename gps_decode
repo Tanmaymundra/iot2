@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial Serial1(10,11);
+SoftwareSerial gps(10,11); //RX,TX
 String data="";
 int mark = 0;
 boolean Mark_Start=false;
@@ -9,13 +9,22 @@ String GGAUTCtime,GGAlatitude,GGAlongitude,GPStatus,SatelliteNum,HDOPfactor,Heig
 PositionValid,RMCUTCtime,RMClatitude,RMClongitude,Speed,Direction,Date,Declination,Mode;
 void setup(){
   Serial.begin(9600);
-  Serial1.begin(9600);
+  gps.begin(9600);
   Serial.println(0);
   delay(1000);
 }
 
 void loop(){
-  while (Serial1.available()> 0){
+gps_loc();  
+}
+
+
+
+
+
+
+void gps_loc(){
+while (gps.available()> 0){
     if(Mark_Start){
       data=reader();
       Serial.println(data);
@@ -81,39 +90,21 @@ void loop(){
       else{
         Serial.println("Your position is not valid.");
       }
-      Serial.print("Date:");
-      Serial.println(Date);
-      Serial.print("UTCtime:");
-      Serial.print(RMCUTCtime);
-      Serial.print("   ");
-      Serial.println(GGAUTCtime);
-      Serial.print("Latitude:");
-      Serial.print(RMClatitude);
-      Serial.print("   ");
-      Serial.println(GGAlatitude);
-      Serial.print("Longitude:");
-      Serial.print(RMClongitude);
-      Serial.print("   ");
-      Serial.println(GGAlongitude);
-      Serial.print("GPStatus:");
-      Serial.println(GPStatus);
-      Serial.print("SatelliteNum:");
-      Serial.println(SatelliteNum);
-      Serial.print("HDOPfactor:");
-      Serial.println(HDOPfactor);
-      Serial.print("Height:");
-      Serial.println(Height);
-      Serial.print("Speed:");
-      Serial.println(Speed);
-      Serial.print("Direction:");
-      Serial.println(Direction);
-      Serial.print("Declination:");
-      Serial.println(Declination);
-      Serial.print("Mode:");
-      Serial.println(Mode);     
+      Serial.println("Date:" + Date);
+      Serial.println("UTCtime: " + RMUTCtime);					 //+ "  " + GGAUTCtime
+      Serial.println("Latitude: " + RMClatitude);				// + "   " + GGAlatitude
+      Serial.println("Longitude: " + RMClongitude);				// + "   " + GGAlongitude
+      Serial.println("GPStatus: " + GPStatus);
+      Serial.println("SatelliteNum: " + SatelliteNum);
+      Serial.println("HDOPfactor: " + HDOPfactor);
+      Serial.println("Height: " + Height);
+      Serial.println("Speed: " + Speed);
+      Serial.println("Direction: " + Direction);
+      Serial.println("Declination: " + Declination);
+      Serial.println("Mode: " + Mode );     
       valid=false;
     }
-    if(Serial1.find("$")){
+    if(gps.find("$")){
       Serial.println("capture");
       Mark_Start=true;
     }
@@ -121,13 +112,14 @@ void loop(){
 
 }
 
+
 String reader(){
   String value="";
   int temp;
 startover:
-  while (Serial1.available() > 0){
+  while (gps.available() > 0){
     delay(2);
-    temp=Serial1.read();
+    temp=gps.read();
     if((temp==',')||(temp=='*')){
       if(value.length()){
         //Serial.println("meaningful message");
@@ -147,7 +139,7 @@ startover:
       value+=char(temp);
     }
   }
-  while (!(Serial1.available()>0)){
+  while (!(gps.available()>0)){
   }
   goto startover;
 }
