@@ -1,0 +1,64 @@
+#include <SoftwareSerial.h>
+
+SoftwareSerial SIM900(11,10); //rx,tx
+
+void setup() {
+
+SIM900.begin(9600);
+Serial.begin(9600);
+delay(5000);
+Serial.flush();
+SIM900.flush();
+Serial.println(0);
+gprs_config1();
+  
+}
+
+void loop() {
+  gprs_config2();
+  // put your main code here, to run repeatedly:
+
+}
+
+void gprs_config1(){
+  Serial.println("Testing Stage 1");
+  commandx("AT",3000);
+  commandx("AT+SAPBR=3,1,\"CONTYPE\",\"GPRS\"",2500);
+  commandx("AT+SAPBR=3,1,\"APN\",\"airtelgprs.com\"",2500);
+  commandx("AT+SAPBR=1,1",10000);
+  commandx("AT+SAPBR=2,1",4000);
+  commandx("AT+HTTPINIT",3000);
+}
+void gprs_config2(){
+ 
+Serial.println("Testing Stage 2");  
+  commandx("AT+HTTPPARA=\"CID\",1",2500);
+  commandx("AT+HTTPPARA=\"URL\",\"google.com\"",3000);
+  commandx("AT+HTTPACTION=0",5000);
+  commandx("AT+HTTPREAD",7000);
+  commandx("AT+HTTPTERM",2500);
+}
+
+void commandx(String CMD,int timer){
+Serial.println("Sending Command : " + CMD);
+SIM900.println(CMD);
+delay(timer);
+ShowSerialData();
+/*if(CMD=="SAPBR=1,1")
+while(SIM900.available()!=0)
+   if(SIM900.read()=="ERROR")
+  Serial.println("Cellphone Signal Not available" );
+  else{}
+    else{
+    Serial.println(0);}
+  */  
+delay(timer);  
+  }
+ 
+
+
+void ShowSerialData()
+{
+  while(SIM900.available()!=0)  /* If data is available on serial port */
+  Serial.write(char (SIM900.read())); /* Print character received on to the serial monitor */
+}
