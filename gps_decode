@@ -75,10 +75,10 @@ while (gps.available()> 0){
         Day=(DATE.substring(0,2)).toInt();
         DateMon=DATE.substring(2,4);
         DateYear=DATE.substring(4,6);
-        
-        time3=RMCUTCtime.substring(4,6);
+       
         hour=(RMCUTCtime.substring(0,2)).toInt();
         mins=(RMCUTCtime.substring(2,4)).toInt();
+        time3=RMCUTCtime.substring(4,6);
     { // INDIA TIME
 
          hour+=5;
@@ -92,9 +92,10 @@ while (gps.available()> 0){
     mins-=60;
     hour+=1;  
     }
+   DateDay=String(Day);
    time1=String(hour);
    time2=String(mins);
-   DateDay=String(Day);
+   
        }
       }
       else if(data.equals("GPVTG")){
