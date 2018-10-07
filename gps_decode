@@ -5,8 +5,9 @@ String data="";
 int mark = 0;
 boolean Mark_Start=false;
 boolean valid=false;
-String GGAUTCtime,GGAlatitude,GGAlongitude,GPStatus,SatelliteNum,HDOPfactor,Height,
-PositionValid,RMCUTCtime,RMClatitude,RMClongitude,Speed,Direction,Date,Declination,Mode;
+String GGAUTCtime,GGAlatitude,GGAlongitude,GPStatus,SatelliteNum,HDOPfactor,Height,PositionValid,RMCUTCtime,RMClatitude,RMClongitude,Speed,Direction,Date,Declination,Mode;
+String DateDay,DateMon,DateYear;
+int time1,time2,time3;
 void setup(){
   Serial.begin(9600);
   gps.begin(9600);
@@ -15,8 +16,11 @@ void setup(){
 }
 
 void loop(){
+  
 gps_loc();  
+ 
 }
+
 
 
 
@@ -27,7 +31,7 @@ void gps_loc(){
 while (gps.available()> 0){
     if(Mark_Start){
       data=reader();
-      Serial.println(data);
+      //Serial.println(data);
       if(data.equals("GPGGA")){
         //Serial.println(1);
         GGAUTCtime=reader();
@@ -45,18 +49,22 @@ while (gps.available()> 0){
 
       }
       else if(data.equals("GPGSA")){
-        Serial.println(2);
+        //Serial.println(2);
         Mark_Start=false;
         data="";
       }
       else if(data.equals("GPGSV")){
-        Serial.println(3);
+        //Serial.println(3);
         Mark_Start=false;
         data="";
       }
       else if(data.equals("GPRMC")){
         //Serial.println(4);
         RMCUTCtime=reader();
+        RMCUTCtime=RMCUTCtime.substring(0,6);
+        time1=(RMCUTCtime.substring(0,2)).toInt();
+        time2=(RMCUTCtime.substring(2,4)).toInt();
+        time3=(RMCUTCtime.substring(4,6)).toInt();
         PositionValid=reader();
         RMClatitude=reader();
         RMClatitude+=reader();
@@ -71,41 +79,57 @@ while (gps.available()> 0){
         valid=true;
         Mark_Start=false;
         data="";
+        DateDay=Date.substring(0,2);
+        DateMon=Date.substring(2,4);
+        DateYear=Date.substring(4,6);
+        
       }
       else if(data.equals("GPVTG")){
-        Serial.println(5);
+        //Serial.println(5);
         Mark_Start=false;
         data="";
       }
       else{
-        Serial.println(6);
+        //Serial.println(6);
         Mark_Start=false;
         data="";
       }
     }
     if(valid){
+
+      Serial.println("Information Package to be Sent");
+      Serial.println("");
       if(PositionValid=="A"){
         Serial.println("Position Valid");
-      }
-      else{
-        Serial.println("Your position is not valid.");
-      }
-      Serial.println("Date:" + Date);
-      Serial.println("UTCtime: " + RMUTCtime);					 //+ "  " + GGAUTCtime
-      Serial.println("Latitude: " + RMClatitude);				// + "   " + GGAlatitude
-      Serial.println("Longitude: " + RMClongitude);				// + "   " + GGAlongitude
+
+      Serial.println("Date:" + DateDay + "/" +DateMon + "/20" +DateYear);
+      Serial.println("UTCtime :" +RMCUTCtime);
+//    Serial.println("UTCtime: " + time1 + " : " + time2 + ":" + time3);           //+ "  " + GGAUTCtime
+      Serial.println("Latitude: " + RMClatitude);       // + "   " + GGAlatitude
+      Serial.println("Longitude: " + RMClongitude);       // + "   " + GGAlongitude
       Serial.println("GPStatus: " + GPStatus);
       Serial.println("SatelliteNum: " + SatelliteNum);
       Serial.println("HDOPfactor: " + HDOPfactor);
-      Serial.println("Height: " + Height);
+      //Serial.println("Height: " + Height);
       Serial.println("Speed: " + Speed);
       Serial.println("Direction: " + Direction);
-      Serial.println("Declination: " + Declination);
-      Serial.println("Mode: " + Mode );     
+      //Serial.println("Declination: " + Declination);
+      Serial.println("Mode: " + Mode );
+           
       valid=false;
+      
+      }
+      else{
+        Serial.println("Your position is not valid.");
+        Serial.println("Make Sure you are in Open Space aka OutDoor");
+        Serial.println("Mode : B"); 
+      
+      }
+      Serial.println("");
+      
     }
     if(gps.find("$")){
-      Serial.println("capture");
+      //Serial.println("Capture Mode");
       Mark_Start=true;
     }
   }
