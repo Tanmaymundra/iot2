@@ -5,9 +5,11 @@ String data="";
 int mark = 0;
 boolean Mark_Start=false;
 boolean valid=false;
-String GGAUTCtime,GGAlatitude,GGAlongitude,GPStatus,SatelliteNum,HDOPfactor,Height,PositionValid,RMCUTCtime,RMClatitude,RMClongitude,Speed,Direction,Date,Declination,Mode;
-String DateDay,DateMon,DateYear;
-int time1,time2,time3;
+String GGAUTCtime,GGAlatitude,GGAlongitude,GPStatus,SatelliteNum,HDOPfactor,Height,PositionValid,RMCUTCtime,RMClatitude,RMClongitude,Speed,Direction,DATE,Declination,Mode;
+String DateDay,DateMon,DateYear; // FROM RMCUTC
+String time1,time2,time3;        // IST TIME -- HOUR:MIN:SEC
+String IST,date;
+int hour,mins,Day;               // FOR CHANGING UTC TO IST
 void setup(){
   Serial.begin(9600);
   gps.begin(9600);
@@ -20,12 +22,6 @@ void loop(){
 gps_loc();  
  
 }
-
-
-
-
-
-
 
 void gps_loc(){
 while (gps.available()> 0){
@@ -62,9 +58,6 @@ while (gps.available()> 0){
         //Serial.println(4);
         RMCUTCtime=reader();
         RMCUTCtime=RMCUTCtime.substring(0,6);
-        time1=(RMCUTCtime.substring(0,2)).toInt();
-        time2=(RMCUTCtime.substring(2,4)).toInt();
-        time3=(RMCUTCtime.substring(4,6)).toInt();
         PositionValid=reader();
         RMClatitude=reader();
         RMClatitude+=reader();
@@ -72,17 +65,37 @@ while (gps.available()> 0){
         RMClongitude+=reader();
         Speed=reader();
         Direction=reader();
-        Date=reader();
+        DATE=reader();
         Declination=reader();
         Declination+=reader();
         Mode=reader();
         valid=true;
         Mark_Start=false;
         data="";
-        DateDay=Date.substring(0,2);
-        DateMon=Date.substring(2,4);
-        DateYear=Date.substring(4,6);
+        Day=(DATE.substring(0,2)).toInt();
+        DateMon=DATE.substring(2,4);
+        DateYear=DATE.substring(4,6);
         
+        time3=RMCUTCtime.substring(4,6);
+        hour=(RMCUTCtime.substring(0,2)).toInt();
+        mins=(RMCUTCtime.substring(2,4)).toInt();
+    { // INDIA TIME
+
+         hour+=5;
+    if(hour>23)
+    {
+     hour-=24;
+     Day+=1;
+    }
+     mins+=30;
+    if(mins>59){
+    mins-=60;
+    hour+=1;  
+    }
+   time1=String(hour);
+   time2=String(mins);
+   DateDay=String(Day);
+       }
       }
       else if(data.equals("GPVTG")){
         //Serial.println(5);
@@ -101,10 +114,13 @@ while (gps.available()> 0){
       Serial.println("");
       if(PositionValid=="A"){
         Serial.println("Position Valid");
-
-      Serial.println("Date:" + DateDay + "/" +DateMon + "/20" +DateYear);
+      IST= time1 + ":" + time2 + ":" + time3;
+      date=DateDay + "/" +DateMon + "/20" +DateYear;
+      
+      Serial.println("Mode: " + Mode );
+      Serial.println("Date:" + date);
       Serial.println("UTCtime :" +RMCUTCtime);
-//    Serial.println("UTCtime: " + time1 + " : " + time2 + ":" + time3);           //+ "  " + GGAUTCtime
+      Serial.println("IST : " + IST);           //+ "  " + GGAUTCtime  
       Serial.println("Latitude: " + RMClatitude);       // + "   " + GGAlatitude
       Serial.println("Longitude: " + RMClongitude);       // + "   " + GGAlongitude
       Serial.println("GPStatus: " + GPStatus);
@@ -114,16 +130,16 @@ while (gps.available()> 0){
       Serial.println("Speed: " + Speed);
       Serial.println("Direction: " + Direction);
       //Serial.println("Declination: " + Declination);
-      Serial.println("Mode: " + Mode );
+      
            
       valid=false;
       
       }
       else{
         Serial.println("Your position is not valid.");
-        Serial.println("Make Sure you are in Open Space aka OutDoor");
+        Serial.println("Make Sure you are in Open Space");
         Serial.println("Mode : B"); 
-      
+        Serial.println("UTCtime: " + time1 + ":" + time2 + ":" + time3);
       }
       Serial.println("");
       
