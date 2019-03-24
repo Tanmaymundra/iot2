@@ -1,6 +1,6 @@
 #include <SoftwareSerial.h>
 
-SoftwareSerial gps(10,11); //RX,TX
+SoftwareSerial gps(10,11); //RX,TX  Connect Gps at this terminal TX of Gps @10 & Rx of Gps @11
 String data="";
 int mark = 0;
 boolean Mark_Start=false;
